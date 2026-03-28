@@ -3,6 +3,6 @@ variable "aws_region" {
 }
 
 variable "bucket_name" {
-  default = "devops-frontend-suhas2"
+  default = "devops-frontend-suhas25"
 }
 

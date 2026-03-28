@@ -24,6 +24,7 @@ resource "aws_s3_bucket_public_access_block" "public" {
 }
 
 resource "aws_s3_bucket_policy" "policy" {
+  depends_on = [aws_s3_bucket_public_access_block.public]
   bucket = aws_s3_bucket.frontend.id
 
   policy = jsonencode({
