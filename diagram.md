@@ -14,6 +14,7 @@ CloudWatch → Logs
 ECR → Docker Images
 GitHub Actions → CI/CD
 <img width="1536" height="1024" alt="image" src="https://github.com/user-attachments/assets/b50690b5-d12c-40d4-bf0a-364a163a83c7" />
+<img width="766" height="648" alt="image" src="https://github.com/user-attachments/assets/d71bc106-2b89-4180-afb2-5a6e948af11c" />
 
 <img width="1917" height="972" alt="image" src="https://github.com/user-attachments/assets/50bed8c1-407a-4ec5-ae09-4940726b1abe" />
 <img width="1919" height="967" alt="image" src="https://github.com/user-attachments/assets/1bd34c0a-9b61-4dbb-b3a3-c8668b7a0352" />
