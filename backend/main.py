@@ -22,7 +22,7 @@ async def notify_user(email: str):
     task = write_log_celery.delay(f"Notification sent to {email}")
     # task is a AsyncResult, a promise to a result that will be available later.
     return {
-        "message": f"Email will be sent to {email} by suhas podey", 
+        "message": f"Email will be sent to {email} by suhas podey",
         "task_id": task.id}
 
 
