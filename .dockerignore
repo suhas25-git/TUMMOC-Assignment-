@@ -8,3 +8,6 @@ __pycache__
 .gitignore
 journey.md
 Readme.md
+*.log
+*.tfstate
+

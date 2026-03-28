@@ -2,8 +2,10 @@ from fastapi import FastAPI
 from celery.result import AsyncResult
 from worker import write_log_celery
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_fastapi_instrumentator import Instrumentator
 
 app = FastAPI()
+Instrumentator().instrument(app).expose(app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -33,7 +35,7 @@ async def get_task_status(task_id: str):
     else:  # If the task is still in progress
         return {"task_id": task_id, "status": "in progress"}
 
-@app.post("/health/")
+@app.get("/health/")
 async def health():
     """Endpoint that checks the health of the application."""
     return {"message": "OK"}

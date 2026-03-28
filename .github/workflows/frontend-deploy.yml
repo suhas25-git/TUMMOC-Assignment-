@@ -31,7 +31,7 @@ jobs:
       # Upload frontend files
       - name: Upload Frontend to S3
         run: |
-          aws s3 sync frontend/ s3://$S3_BUCKET --delete
+          aws s3 sync frontend/ s3://$S3_BUCKET --delete --cache-control "no-cache"
 
       # Show website URL
       - name: Show Website URL

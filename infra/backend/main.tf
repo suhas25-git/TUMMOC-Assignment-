@@ -1,4 +1,18 @@
 ############################
+# ECR Repositories
+############################
+
+resource "aws_ecr_repository" "backend" {
+  name = "devops-backend"
+}
+
+resource "aws_ecr_repository" "worker" {
+  name = "devops-worker"
+}
+resource "aws_ecr_repository" "adot" {
+  name = "devops-adot"
+}
+############################
 # VPC
 ############################
 
@@ -94,6 +108,30 @@ resource "aws_iam_role_policy_attachment" "ecs_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_policy" "amp_policy" {
+  name = "amp-write-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "aps:RemoteWrite",
+          "aps:GetSeries",
+          "aps:GetLabels",
+          "aps:GetMetricMetadata"
+        ],
+        Effect   = "Allow",
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "amp_attach" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.amp_policy.arn
+}
 ############################
 # Security Groups
 ############################
@@ -290,7 +328,38 @@ resource "aws_ecs_task_definition" "worker" {
     }
   ])
 }
+############################
+# ADOT Collector Task
+############################
 
+resource "aws_ecs_task_definition" "adot" {
+  family                   = "adot-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["FARGATE"]
+  cpu                      = "256"
+  memory                   = "512"
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+
+  container_definitions = jsonencode([{
+    name  = "adot"
+    image = "${var.account_id}.dkr.ecr.ap-south-1.amazonaws.com/devops-adot:latest"
+
+    essential = true
+
+    command = [
+      "--config=/etc/otel-config.yaml"
+    ]
+
+    logConfiguration = {
+      logDriver = "awslogs"
+      options = {
+        awslogs-group         = "/ecs/devops"
+        awslogs-region        = "ap-south-1"
+        awslogs-stream-prefix = "adot"
+      }
+    }
+  }])
+}
 ############################
 # Backend Service
 ############################
@@ -340,4 +409,22 @@ resource "aws_ecs_service" "worker" {
     assign_public_ip = true
   }
 }
+#######################
+#adot service
+#######################
+resource "aws_ecs_service" "adot" {
+  name            = "adot-service"
+  cluster         = aws_ecs_cluster.main.id
+  task_definition = aws_ecs_task_definition.adot.arn
+  launch_type     = "FARGATE"
+  desired_count   = 1
 
+  network_configuration {
+    subnets = [
+      aws_subnet.public_1.id,
+      aws_subnet.public_2.id
+    ]
+    security_groups  = [aws_security_group.ecs_sg.id]
+    assign_public_ip = true
+  }
+}

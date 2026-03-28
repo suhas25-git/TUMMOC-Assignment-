@@ -28,6 +28,8 @@ WORKDIR /app/backend
 
 ENV PATH=/root/.local/bin:$PATH
 ENV PYTHONUNBUFFERED=1
+ENV REDIS_URL=redis://redis:6379/0
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
 
+HEALTHCHECK CMD curl --fail http://localhost:8000/docs || exit 1

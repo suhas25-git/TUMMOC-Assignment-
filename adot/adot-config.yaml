@@ -1,0 +1,18 @@
+receivers:
+  prometheus:
+    config:
+      scrape_configs:
+        - job_name: "backend"
+          metrics_path: /metrics
+          static_configs:
+            - targets: ["devops-alb-254505052.ap-south-1.elb.amazonaws.com:80"]
+
+exporters:
+  prometheusremotewrite:
+    endpoint: "https://aps-workspaces.ap-south-1.amazonaws.com/workspaces/ws-8cfaf0d3-98e0-43d4-8538-68fc682d8c98/api/v1/remote_write"
+
+service:
+  pipelines:
+    metrics:
+      receivers: [prometheus]
+      exporters: [prometheusremotewrite]

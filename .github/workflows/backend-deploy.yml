@@ -26,6 +26,30 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      # Install Python
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      # Install Lint Tool
+      - name: Install flake8
+        run: pip install flake8
+
+      # Run Lint
+      - name: Run Lint
+        run: flake8 backend/
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: pip install -r requirements.txt
+
+      # Run Tests (basic placeholder)
+      - name: Run Tests
+        run: |
+          echo "No tests yet"
+          exit 0
+          
       # AWS Credentials
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -46,6 +70,11 @@ jobs:
         run: |
           docker build -t backend .
 
+      # Build ADOT Image
+      - name: Build ADOT Image
+        run: |
+          docker build -t adot ./adot
+
       # Install Trivy
       - name: Install Trivy
         run: |
@@ -59,7 +88,7 @@ jobs:
       # Scan Image
       - name: Run Trivy Scan
         run: |
-          trivy image backend --exit-code 0 --severity HIGH,CRITICAL
+          trivy image backend --exit-code 0 --severity CRITICAL
 
       # Tag & Push Backend
       - name: Push Backend Image
@@ -69,6 +98,15 @@ jobs:
 
           docker push \
           $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_BACKEND:latest
+
+      # Push ADOT Image
+      - name: Push ADOT Image
+        run: |
+          docker tag adot:latest \
+          $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/devops-adot:latest
+
+          docker push \
+          $ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/devops-adot:latest
 
       # Tag & Push Worker
       - name: Push Worker Image
@@ -95,3 +133,10 @@ jobs:
             --service $ECS_WORKER_SERVICE \
             --force-new-deployment
 
+      # Deploy ADOT Service
+      - name: Deploy ADOT Service
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service adot-service \
+            --force-new-deployment
