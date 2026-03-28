@@ -1,50 +1,231 @@
-## DevOps Assessment Assignment
+#  DevOps Assessment Assignment
 
-### Overview
+##  Overview
 
-**Key components**
+This project demonstrates a **complete DevOps workflow** for a microservice-based application, including:
 
-- **Backend** (`backend/main.py`) – FastAPI app: `POST /notify/` enqueues a Celery task, `GET /task_status/{task_id}` returns status/result.
-- **Worker** (`backend/worker.py`) – Celery worker that runs the background task.
-- **Redis** – Message broker and result backend for Celery.
-- **Frontend** (`frontend/index.html`) – Single page that triggers a task and polls until it’s done.
+* Containerization (Docker)
+* CI/CD (GitHub Actions)
+* Infrastructure as Code (Terraform)
+* Cloud deployment (AWS ECS, S3, ALB)
+* Monitoring (Amazon Managed Prometheus + Grafana + CloudWatch)
 
-**Run locally (no Docker)**
-
-1. Start Redis.
-2. From project root: `cd backend && python -m venv venv`, activate venv, `pip install -r ../requirements.txt`.
-3. Terminal 1: `cd backend && celery -A worker worker --loglevel=info`.
-4. Terminal 2: `cd backend && uvicorn main:app --reload --port 8000`.
-5. Serve frontend: simply open index.html in browser.
 ---
 
-Design and implement a workflow to:
+##  Architecture
 
-- **Containerize the application**
-  - Build Docker images for the existing backend.
-  - Provide a setup to run the app locally.
-  - Identify all the hardcoded values and replace those with environment variables.
-  - Include any required local dependencies (e.g. message broker, database) as containers.
+###  High-Level Flow
 
-- **Run containers locally**
-  - Provide clear commands to:
-    - Build images.
-    - Start the full stack.
-    - View logs and debug.
+User → S3 (Frontend) → ALB → ECS (Backend + Worker) → Redis (ElastiCache)
+↓
+Monitoring (AMP + Grafana + CloudWatch)
 
-- **Deploy to a cloud provider using code (no manual clicks)**
-  - Use **Infrastructure as Code (IaC)** to provision all cloud resources.
-  - Use **CI/CD** (GitHub Actions, GitLab CI, Azure DevOps, etc.) to build, push images, and deploy the app.
+---
 
-- **Maximize managed cloud services**
-  - Prefer managed services over self-hosted where possible.
-  - Use cloud-native logging/monitoring where reasonable (e.g. CloudWatch, Azure Monitor, Stackdriver).
+##  Key Components
 
-- **Deliverables**
-  - updated code base with IAC and build related code.
-  - document your journey in `journey.md` file.
-  - create `instructions.md` file for developers to run containerized setup locally.
-  - simple architecture diagram to showcase cloud resources.
-  - single-page frontend in `frontend/index.html` that:
-    - calls the `POST /notify/` API to trigger a background task.
-    - polls the `GET /task_status/{task_id}` API to show live task status and result.
+###  Backend (`backend/main.py`)
+
+* FastAPI application
+* `POST /notify/` → triggers background task
+* `GET /task_status/{task_id}` → fetch task status
+
+---
+
+###  Worker (`backend/worker.py`)
+
+* Celery worker
+* Executes async tasks
+
+---
+
+###  Redis (ElastiCache)
+
+* Message broker
+* Result backend
+
+---
+
+###  Frontend (`frontend/index.html`)
+
+* Single-page UI
+* Triggers task
+* Polls backend for status
+
+---
+
+##  Containerization
+
+* Backend and worker containerized using Docker
+* Multi-service setup using docker-compose
+
+###  Environment Variables
+
+All hardcoded values replaced with env variables:
+
+```env
+REDIS_URL
+API_BASE_URL
+AWS_REGION
+```
+
+---
+
+##  Run Locally (Docker)
+
+###  Build Images
+
+```bash
+docker-compose build
+```
+
+---
+
+###  Start Full Stack
+
+```bash
+docker-compose up
+```
+
+---
+
+###  Access Services
+
+* Frontend → http://localhost:3000
+* Backend → http://localhost:8000/docs
+* Prometheus → http://localhost:9090
+* Grafana → http://localhost:3001
+
+---
+
+###  View Logs
+
+```bash
+docker-compose logs -f
+```
+
+---
+
+##  Cloud Deployment (AWS)
+
+###  Infrastructure (Terraform)
+
+Provisioned resources:
+
+* ECS Fargate (Backend + Worker)
+* Application Load Balancer (ALB)
+* S3 (Frontend hosting)
+* ElastiCache (Redis)
+* ECR (Docker images)
+* IAM Roles & Security Groups
+
+---
+
+###  Deploy Infra
+
+```bash
+cd infra/backend
+terraform init
+terraform apply
+```
+
+---
+
+##  CI/CD Pipeline (GitHub Actions)
+
+### Backend Pipeline
+
+* Lint (flake8)
+* Test (basic validation)
+* Build Docker image
+* Security scan (Trivy)
+* Push to ECR
+* Deploy to ECS
+
+---
+
+### Frontend Pipeline
+
+* Upload static files to S3
+* Auto-deploy on push
+
+---
+
+##  Monitoring & Observability
+
+###  Metrics Pipeline
+
+App → ADOT → Amazon Managed Prometheus → Grafana
+
+---
+
+###  Tools Used
+
+* Amazon Managed Prometheus (AMP)
+* Amazon Managed Grafana (AMG)
+* CloudWatch (ECS metrics & logs)
+
+---
+
+###  Dashboard Includes
+
+* App health (`up`)
+* Request rate
+* Total requests
+* Latency
+* ECS CPU & Memory
+* Service health
+
+---
+
+##  Project Structure
+
+```bash
+.
+├── backend/
+├── frontend/
+├── infra/
+│   ├── backend/
+│   ├── frontend/
+├── .github/workflows/
+├── docker-compose.yml
+├── Dockerfile
+├── prometheus.yml
+└── README.md
+```
+
+---
+
+##  Deliverables
+
+*  Containerized application
+*  Infrastructure as Code (Terraform)
+*  CI/CD pipeline
+*  Monitoring setup
+*  Production-ready deployment
+*  Architecture diagram
+
+---
+
+##  Key Highlights
+
+* Fully automated CI/CD pipeline
+* Zero manual deployment
+* Scalable ECS-based architecture
+* Managed AWS services used wherever possible
+* End-to-end observability implemented
+
+---
+
+##  Future Improvements
+
+* Auto-scaling ECS services
+* Alerting (CPU, failures)
+* CloudFront + HTTPS
+* Blue/Green deployments
+
+---
+
+##  Author
+
+Suhas Podey
