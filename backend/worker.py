@@ -18,4 +18,3 @@ def write_log_celery(message: str):
     with open("log_celery.txt", "a") as f:
         f.write(f"{message}\n")
     return f"✅ NEW VERSION DEPLOYED — Task completed: {message}"
-

@@ -38,7 +38,7 @@ jobs:
 
       # Run Lint
       - name: Run Lint
-        run: flake8 backend/
+        run: flake8 backend/ --max-line-length=120
 
       # Install dependencies
       - name: Install Dependencies

@@ -21,7 +21,9 @@ async def notify_user(email: str):
     """Endpoint that triggers the background task in Celery."""
     task = write_log_celery.delay(f"Notification sent to {email}")
     # task is a AsyncResult, a promise to a result that will be available later.
-    return {"message": f"Email will be sent to {email} by suhas podey", "task_id": task.id}
+    return {
+        "message": f"Email will be sent to {email} by suhas podey", 
+        "task_id": task.id}
 
 
 @app.get("/task_status/{task_id}")
@@ -34,6 +36,7 @@ async def get_task_status(task_id: str):
         return {"task_id": task_id, "status": "failed"}
     else:  # If the task is still in progress
         return {"task_id": task_id, "status": "in progress"}
+
 
 @app.get("/health/")
 async def health():
