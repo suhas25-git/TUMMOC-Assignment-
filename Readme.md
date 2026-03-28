@@ -1,5 +1,8 @@
 #  DevOps Assessment Assignment
 
+Tool & Experience Self-Assessment
+<img width="766" height="648" alt="image" src="https://github.com/user-attachments/assets/723ee527-afeb-48b5-a44c-3f07741bc3d6" />
+
 ##  Overview
 
 This project demonstrates a **complete DevOps workflow** for a microservice-based application, including:
